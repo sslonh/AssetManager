@@ -16,12 +16,21 @@ class ViewController: UICollectionViewController {
     
     let assetCountPerRow:CGFloat = 4 //how many assets you want displayed per row
     let backgroundColor = UIColor.whiteColor()
+    let refreshTintColor = UIColor.blueColor()
+    
+    let refreshControl = UIRefreshControl()
     
     //MARK: Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         self.collectionView?.backgroundColor = self.backgroundColor
         self.dimension = UIScreen.mainScreen().bounds.size.width / assetCountPerRow
+        
+        self.refreshControl.tintColor = self.refreshTintColor
+        self.refreshControl.addTarget(self, action: Selector("loadAssets"), forControlEvents: UIControlEvents.ValueChanged)
+        self.collectionView?.addSubview(self.refreshControl)
+        
         self.loadAssets()
     }
 
@@ -31,10 +40,11 @@ class ViewController: UICollectionViewController {
     }
     
     //MARK: View Controller Functions
-    private func loadAssets() {
+    func loadAssets() {
         let fetchOptions = PHFetchOptions()
         fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
         self.allAssets = PHAsset.fetchAssetsWithOptions(fetchOptions)
+        self.refreshControl.endRefreshing()
     }
     
     //MARK: UICollectionViewController Delegates
@@ -59,6 +69,24 @@ class ViewController: UICollectionViewController {
         cell.selected = true
         
         return cell
+    }
+    
+    override func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath) {
+        let confirm = UIAlertController(title: "", message: "Delete?", preferredStyle: UIAlertControllerStyle.Alert)
+        confirm.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Default, handler: { (action: UIAlertAction?) -> Void in
+        }))
+        confirm.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Destructive, handler: { (action: UIAlertAction?) -> Void in
+            let asset = self.allAssets?.objectAtIndex(indexPath.row) as! PHAsset
+            PHPhotoLibrary.sharedPhotoLibrary().performChanges({ () -> Void in
+                PHAssetChangeRequest.deleteAssets([asset])
+                }, completionHandler: { (success, error) -> Void in
+                    dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                        self.loadAssets()
+                        self.collectionView?.reloadData()
+                    })
+            })
+        }))
+        self.presentViewController(confirm, animated: true, completion: nil)
     }
     
     func collectionView(collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAtIndexPath indexPath: NSIndexPath) -> CGSize {
