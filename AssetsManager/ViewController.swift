@@ -25,7 +25,7 @@ class ViewController: UICollectionViewController {
         super.viewDidLoad()
         
         self.collectionView?.backgroundColor = self.backgroundColor
-        self.dimension = UIScreen.mainScreen().bounds.size.width / assetCountPerRow
+        self.dimension = floor(UIScreen.mainScreen().bounds.size.width / assetCountPerRow)
         
         self.refreshControl.tintColor = self.refreshTintColor
         self.refreshControl.addTarget(self, action: Selector("loadAssets"), forControlEvents: UIControlEvents.ValueChanged)
@@ -49,7 +49,7 @@ class ViewController: UICollectionViewController {
     
     override func viewWillTransitionToSize(size: CGSize, withTransitionCoordinator coordinator: UIViewControllerTransitionCoordinator) {
         coordinator.animateAlongsideTransition({ (context) -> Void in
-            self.dimension = UIScreen.mainScreen().bounds.size.width / self.assetCountPerRow
+            self.dimension = floor(UIScreen.mainScreen().bounds.size.width / self.assetCountPerRow)
             self.collectionView?.reloadData()
             }, completion: nil)
     }
