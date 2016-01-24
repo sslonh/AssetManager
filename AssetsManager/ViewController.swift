@@ -48,6 +48,7 @@ class ViewController: UICollectionViewController {
     }
     
     override func viewWillTransitionToSize(size: CGSize, withTransitionCoordinator coordinator: UIViewControllerTransitionCoordinator) {
+        self.dimension = UIScreen.mainScreen().bounds.size.width / assetCountPerRow
         self.collectionView?.reloadData()
     }
     
