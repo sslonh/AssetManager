@@ -47,6 +47,10 @@ class ViewController: UICollectionViewController {
         self.refreshControl.endRefreshing()
     }
     
+    override func viewWillTransitionToSize(size: CGSize, withTransitionCoordinator coordinator: UIViewControllerTransitionCoordinator) {
+        self.collectionView?.reloadData()
+    }
+    
     //MARK: UICollectionViewController Delegates
     override func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if let assets = self.allAssets {
